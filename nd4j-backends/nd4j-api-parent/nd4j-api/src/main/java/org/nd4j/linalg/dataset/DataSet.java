@@ -493,7 +493,7 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
 
     @Override
     public void save(OutputStream to) {
-        save(to, defaultCompression);
+        saveUncompressed(to);
     }
 
     public void save(File to, String compressionAlgorithm) {
@@ -507,7 +507,7 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
 
     @Override
     public void save(File to) {
-        save(to, defaultCompression);
+        saveUncompressed(to);
     }
 
     public void saveUncompressed(OutputStream to) {
