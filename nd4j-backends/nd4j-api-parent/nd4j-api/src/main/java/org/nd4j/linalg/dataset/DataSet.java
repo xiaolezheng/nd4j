@@ -1547,11 +1547,32 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
      */
     @Override
     public long getMemoryFootprint() {
+        // we need to decompress array before checking its size
+        decompress();
+
         long reqMem = features.lengthLong() * Nd4j.sizeOfDataType();
         reqMem += labels == null ? 0 : labels.lengthLong() * Nd4j.sizeOfDataType();
         reqMem += featuresMask == null ? 0 : featuresMask.lengthLong() * Nd4j.sizeOfDataType();
         reqMem += labelsMask == null ? 0 : labelsMask.lengthLong() * Nd4j.sizeOfDataType();
 
         return reqMem;
+    }
+
+    /**
+     * Thia method checks, if dataset is compressed, and applies decompression to it
+     */
+    @Override
+    public void decompress() {
+        if (features != null && features.isCompressed())
+            Nd4j.getCompressor().decompressi(features);
+
+        if (labels != null && labels.isCompressed())
+            Nd4j.getCompressor().decompressi(labels);
+
+        if (featuresMask != null && featuresMask.isCompressed())
+            Nd4j.getCompressor().decompressi(featuresMask);
+
+        if (labelsMask != null && labelsMask.isCompressed())
+            Nd4j.getCompressor().decompressi(labelsMask);
     }
 }
