@@ -102,6 +102,23 @@ dependencies {
 }
 ```
 
+Note: if your Gradle project fails with an error like the following:
+
+```groovy
+Warning:<i><b>root project 'search-classifier': Unable to resolve additional project configuration.</b>
+Details: org.gradle.api.artifacts.ResolveException: Could not resolve all dependencies for configuration ':naive-classifier:compile'.
+Caused by: org.gradle.internal.resolve.ArtifactNotFoundException: Could not find opencv-linux-x86.jar (org.bytedeco.javacpp-presets:opencv:3.1.0-1.3).
+Searched in the following locations:
+    file:/Users/user/.m2/repository/org/bytedeco/javacpp-presets/opencv/3.1.0-1.3/opencv-3.1.0-1.3-linux-x86.jar</i>
+```
+
+You can add the required dependencies as below. This is because Gradle has limited support for classifiers.
+
+```groovy
+compile 'org.bytedeco.javacpp-presets:opencv:3.1.0-1.3'
+compile 'org.bytedeco.javacpp-presets:opencv:3.1.0-1.3.3:linx-x86'
+```
+
 Similarly, for sbt, we need to include something like the following inside `build.sbt`:
 
 ```scala
