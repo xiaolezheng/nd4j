@@ -21,7 +21,8 @@
 
 set -e
 
-VALID_VERSIONS=( 2.10 2.11 )
+VALID_VERSIONS=( 2.10 2.11 2.12 )
+SCALA_212_VERSION="2\.12\.2"
 SCALA_211_VERSION="2\.11\.7"
 SCALA_210_VERSION="2\.10\.6"
 
@@ -51,14 +52,26 @@ check_scala_version "$TO_VERSION"
 
 if [ $TO_VERSION = "2.11" ]; then
   FROM_BINARY="_2\.10"
+  FROM_OTHER_BINARY="_2\.12"
   TO_BINARY="_2\.11"
   FROM_VERSION=$SCALA_210_VERSION
+  FROM_OTHER_VERSION=$SCALA_212_VERSION
   TO_VERSION=$SCALA_211_VERSION
-else
+else if [ $TO_VERSION = "2.12" ]; then
+  FROM_BINARY="_2\.10"
+  FROM_OTHER_BINARY="_2\.11"
+  TO_BINARY="_2\.12"
+  FROM_VERSION=$SCALA_210_VERSION
+  FROM_OTHER_VERSION=$SCALA_211_VERSION
+  TO_VERSION=$SCALA_212_VERSION
+     else
   FROM_BINARY="_2\.11"
+  FROM_OTHER_BINARY="_2\.12"
   TO_BINARY="_2\.10"
   FROM_VERSION=$SCALA_211_VERSION
+  FROM_OTHER_VERSION=$SCALA_212_VERSION
   TO_VERSION=$SCALA_210_VERSION
+     fi
 fi
 
 sed_i() {
@@ -73,14 +86,24 @@ BASEDIR=$(dirname $0)
 
 #Artifact ids, ending with "_2.10" or "_2.11". Spark, spark-mllib, kafka, etc.
 find "$BASEDIR" -name 'pom.xml' -not -path '*target*' \
-  -exec bash -c "sed_i 's/\(artifactId>.*\)'$FROM_BINARY'<\/artifactId>/\1'$TO_BINARY'<\/artifactId>/g' {}" \;
+     -exec bash -c "sed_i 's/\(artifactId>.*\)'$FROM_BINARY'<\/artifactId>/\1'$TO_BINARY'<\/artifactId>/g' {}" \;
+
+find "$BASEDIR" -name 'pom.xml' -not -path '*target*' \
+  -exec bash -c "sed_i 's/\(artifactId>.*\)'$FROM_OTHER_BINARY'<\/artifactId>/\1'$TO_BINARY'<\/artifactId>/g' {}" \;
 
 #Scala versions, like <artifactId>scala-library</artifactId> <version>2.10.6</version>
 find "$BASEDIR" -name 'pom.xml' -not -path '*target*' \
   -exec bash -c "sed_i 's/\(version>\)'$FROM_VERSION'<\/version>/\1'$TO_VERSION'<\/version>/g' {}" \;
 
+find "$BASEDIR" -name 'pom.xml' -not -path '*target*' \
+  -exec bash -c "sed_i 's/\(version>\)'$FROM_OTHER_VERSION'<\/version>/\1'$TO_VERSION'<\/version>/g' {}" \;
+
 #Scala maven plugin, <scalaVersion>2.10</scalaVersion>
 find "$BASEDIR" -name 'pom.xml' -not -path '*target*' \
   -exec bash -c "sed_i 's/\(scalaVersion>\)'$FROM_VERSION'<\/scalaVersion>/\1'$TO_VERSION'<\/scalaVersion>/g' {}" \;
 
+find "$BASEDIR" -name 'pom.xml' -not -path '*target*' \
+  -exec bash -c "sed_i 's/\(scalaVersion>\)'$FROM_OTHER_VERSION'<\/scalaVersion>/\1'$TO_VERSION'<\/scalaVersion>/g' {}" \;
+
 echo "Done updating Scala versions.";
+
