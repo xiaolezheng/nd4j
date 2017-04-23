@@ -1,0 +1,13 @@
+.idea/
+nd4j-backends/
+nd4j-buffer/
+nd4j-bytebuddy/
+nd4j-common/
+nd4j-context/
+nd4j-instrumentation/
+nd4j-jdbc/
+nd4j-parameter-server-parent/
+nd4j-perf/
+nd4j-serde/
+nd4j-shade/
+target/

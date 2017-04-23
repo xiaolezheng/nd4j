@@ -249,8 +249,6 @@ org.nd4j.parameterserver.status.play
 org.nd4j.parameterserver.updater
 org.nd4j.parameterserver.updater.storage
 org.nd4j.parameterserver.util
-org.nd4j.reflectionloader
-org.nd4j.reflectionloader.testclasses
 org.nd4j.rng
 org.nd4j.rng.deallocator
 org.nd4j.serde.base64
