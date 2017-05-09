@@ -1364,6 +1364,10 @@ public abstract class NativeOps extends Pointer {
                                                  int maxShapes, int maxIntArrays, int maxIntArraySize, int maxIdx, int maxReals,
                                                  Pointer ptrToArguments);
 
+    public abstract void execAggregateBatchReduceFloat(PointerPointer extras, int numAggregates, int opNum, int maxArgs,
+                                                 int maxShapes, int maxIntArrays, int maxIntArraySize, int maxIdx, int maxReals,
+                                                 Pointer ptrToArguments);
+
     public abstract void execAggregateBatchDouble(PointerPointer extras, int numAggregates, int opNum, int maxArgs,
                                                   int maxShapes, int maxIntArrays, int maxIntArraySize, int maxIdx, int maxReals,
                                                   Pointer ptrToArguments);
