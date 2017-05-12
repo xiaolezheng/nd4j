@@ -33,14 +33,13 @@ public class BasicStashTests extends BaseNd4jTest {
         INDArray array = Nd4j.linspace(0, 9, 10);
         INDArray exp = Nd4j.linspace(0, 9, 10);
 
-        Stash<String> stash = Nd4j.getStashManager().getStash(STASH_ID);
+        Stash<String> stash = Nd4j.getStashManager().createStashIfNotExists(STASH_ID);
 
         stash.put("A", array);
 
         INDArray restored = stash.get("A");
 
         assertEquals(exp, restored);
-
     }
 
     @Override

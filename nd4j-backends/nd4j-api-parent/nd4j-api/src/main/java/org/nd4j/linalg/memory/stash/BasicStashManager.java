@@ -3,7 +3,7 @@ package org.nd4j.linalg.memory.stash;
 /**
  * @author raver119@gmail.com
  */
-public class BasicStashManager implements StashManager {
+public abstract class BasicStashManager implements StashManager {
 
     @Override
     public <T> boolean checkIfStashExists(T stashId) {
@@ -17,6 +17,8 @@ public class BasicStashManager implements StashManager {
 
     @Override
     public <T> Stash<T> createStashIfNotExists(T stashId) {
-        return null;
+        return checkIfStashExists(stashId) ? getStash(stashId) : createStash(stashId);
     }
+
+    protected abstract <T> Stash<T>  createStash(T stashId);
 }
