@@ -126,6 +126,7 @@ public class Nd4j {
     public final static String COMPRESSION_DEBUG = "compressiondebug";
     public final static String MEMORY_MANAGER = "memorymanager";
     public final static String WORKSPACE_MANAGER = "workspacemanager";
+    public final static String STASH_MANAGER = "stashmanager";
     public final static String RANDOM_PROVIDER = "random";
     //execution mode for element wise operations
     public static OpExecutioner.ExecutionMode executionMode = OpExecutioner.ExecutionMode.JAVA;
@@ -168,7 +169,7 @@ public class Nd4j {
     protected static Class<? extends BasicConstantHandler> constantProviderClazz;
     protected static Class<? extends BasicAffinityManager> affinityManagerClazz;
     protected static Class<? extends BasicMemoryManager> memoryManagerClazz;
-    protected static Class<? extends BasicStashManager> stashManagerClazz;
+    protected static Class<? extends StashManager> stashManagerClazz;
 
     protected static DataBufferFactory DATA_BUFFER_FACTORY_INSTANCE;
     protected static BlasWrapper BLAS_WRAPPER_INSTANCE;
@@ -5958,6 +5959,8 @@ public class Nd4j {
 
             workspaceManagerClazz = (Class<? extends MemoryWorkspaceManager>) Class
                     .forName(System.getProperty(WORKSPACE_MANAGER, props.get(WORKSPACE_MANAGER).toString()));
+            stashManagerClazz = (Class<? extends StashManager>) Class
+                    .forName(System.getProperty(STASH_MANAGER, props.get(STASH_MANAGER).toString()));
 
 
             instrumentationClazz = (Class<? extends Instrumentation>) Class
@@ -5976,6 +5979,7 @@ public class Nd4j {
             constantHandler = constantProviderClazz.newInstance();
             shapeInfoProvider = shapeInfoProviderClazz.newInstance();
             workspaceManager = workspaceManagerClazz.newInstance();
+            stashManager = stashManagerClazz.newInstance();
 
             opExecutionerClazz = (Class<? extends OpExecutioner>) Class
                     .forName(props.getProperty(OP_EXECUTIONER, DefaultOpExecutioner.class.getName()));
@@ -6257,7 +6261,7 @@ public class Nd4j {
      *
      * @return
      */
-    private static StashManager getStashManager() {
+    public static StashManager getStashManager() {
         return stashManager;
     }
 }
