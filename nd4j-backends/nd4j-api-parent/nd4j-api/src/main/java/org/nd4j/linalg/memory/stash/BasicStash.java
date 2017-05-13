@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bytedeco.javacpp.Pointer;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.memory.MemoryWorkspace;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -47,6 +48,12 @@ public abstract class BasicStash<T extends Object> implements Stash<T> {
             Special case here is GPU: we want to synchronize HOST memory, and store only HOST memory.
             So, original INDArray stays intact, and copy gets used here.
          */
+
+        /*
+            We'll use replace event as trigger for workspace initialization: once first replacement starts:
+            1) we purge everything from stash
+            2) we enforce workspace initialization
+         */
     }
 
     @Override
@@ -85,7 +92,7 @@ public abstract class BasicStash<T extends Object> implements Stash<T> {
         /**
          * DataBuffer that refers to some underlying workspace memory chunk. Should be used only for memcpy
          */
-        protected DataBuffer dataBuffer;
+        protected Pointer dataPointer;
 
         // TODO: decide, if we really want shape in jvm[] here
         protected int[] shape;
