@@ -17,16 +17,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class BasicStash<T extends Object> implements Stash<T> {
     // obviously we won't have INDArrays stored here.
     protected Map<T, INDArray> stash = new ConcurrentHashMap<>();
-    @Getter protected T id;
+    @Getter protected String id;
 
     /*
-        This workspace will be used
+        This workspace will be used to serve stash
      */
     protected MemoryWorkspace workspace;
 
-    protected BasicStash(T id) {
-
+    protected BasicStash(String id) {
+        /*
+            Here we need to instantiate all local structures + instantiate workspace used internally
+         */
     }
+
+    protected abstract void init();
 
     @Override
     public boolean checkIfExists(T key) {
@@ -63,6 +67,16 @@ public abstract class BasicStash<T extends Object> implements Stash<T> {
         // TODO: we'll reset workspace memory here probably?
     }
 
+    @Override
+    public void destroyStash() {
+        // basically purge + destroyWorkspace, nothing else is required here probably
+        purge();
+
+        if (workspace != null) {
+            workspace.destroyWorkspace(true);
+            workspace = null;
+        }
+    }
 
     @Data
     @NoArgsConstructor

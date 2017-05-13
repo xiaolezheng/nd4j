@@ -8,7 +8,7 @@ import org.nd4j.linalg.memory.stash.Stash;
  */
 public class CudaStashManager extends BasicStashManager {
     @Override
-    protected <T> Stash<T> createStash(T stashId) {
+    protected <T> Stash<T> createStash(String stashId) {
         return new CudaStash<T>(stashId);
     }
 }

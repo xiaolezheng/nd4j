@@ -7,9 +7,9 @@ package org.nd4j.linalg.memory.stash;
  */
 public interface StashManager {
 
-    <T extends Object> boolean checkIfStashExists(T stashId);
+    <T extends Object> boolean checkIfStashExists(String stashId);
 
-    <T extends Object> Stash<T> getStash(T stashId);
+    <T extends Object> Stash<T> getStash(String stashId);
 
-    <T extends Object> Stash<T> createStashIfNotExists(T stashId);
+    <T extends Object> Stash<T> createStashIfNotExists(String stashId);
 }
