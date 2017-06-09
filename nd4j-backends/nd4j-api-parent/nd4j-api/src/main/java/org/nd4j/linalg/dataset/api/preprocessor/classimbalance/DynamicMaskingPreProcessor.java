@@ -2,6 +2,7 @@ package org.nd4j.linalg.dataset.api.preprocessor.classimbalance;
 
 import lombok.NonNull;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
 import org.nd4j.linalg.dataset.api.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.factory.Nd4j;
@@ -53,19 +54,6 @@ public class DynamicMaskingPreProcessor implements DataSetPreProcessor {
 
             int labelRank = labels.rank();
             INDArray labelMask = toPreProcess.getLabelsMaskArray();
-//            if(labelMask == null){
-//                if(labelRank == 2){
-//                    //Want a column vector mask array
-//                    labelMask = Nd4j.ones(labels.size(0),1);
-//                } else if(labelRank == 3){
-//                    //Time series mask
-//                    labelMask = Nd4j.ones(labels.size(0), labels.size(2));
-//                } else {
-//                    throw new UnsupportedOperationException("Can only handle labels of rank 2 or 3");
-//                }
-//                toPreProcess.setLabelsMaskArray(labelMask);
-//            }
-
 
             //Need to decide - based on the class - whether to mask it or not
             double mask0Prob = maskingProbability.getDouble(0);
@@ -74,15 +62,10 @@ public class DynamicMaskingPreProcessor implements DataSetPreProcessor {
             INDArray isClass1 = labels.dup();
             INDArray isClass0 = Transforms.not(labels);
 
-            INDArray maskClass0 = Nd4j.rand(isClass0.shape());
-            INDArray maskClass1 = Nd4j.rand(isClass1.shape());
-
-            //If value is less than mask0Prob -> set to 0. Otherwise set to 1.0
-            BooleanIndexing.applyWhere(maskClass0, Conditions.greaterThanOrEqual(1.0-mask0Prob), 1.0);
-            BooleanIndexing.applyWhere(maskClass0, Conditions.lessThanOrEqual(mask0Prob), 0.0);
-
-            BooleanIndexing.applyWhere(maskClass1, Conditions.greaterThanOrEqual(1.0-mask1Prob), 1.0);
-            BooleanIndexing.applyWhere(maskClass1, Conditions.lessThanOrEqual(mask1Prob), 0.0);
+            INDArray maskClass0 = Nd4j.createUninitialized(isClass0.shape());
+            INDArray maskClass1 = Nd4j.createUninitialized(isClass1.shape());
+            Nd4j.getExecutioner().exec(new BernoulliDistribution(maskClass0, mask0Prob));
+            Nd4j.getExecutioner().exec(new BernoulliDistribution(maskClass1, mask1Prob));
 
             INDArray finalMask = maskClass0.muli(isClass0).addi(maskClass1.muli(isClass1));
 
@@ -93,14 +76,36 @@ public class DynamicMaskingPreProcessor implements DataSetPreProcessor {
 
             //If we already have a mask: apply this on top. Otherwise: set it as the new mask
             if(labelMask != null){
-                finalMask = Transforms.and(labelMask, finalMask);
+                labelMask.muli(finalMask);  //i.e., an AND operation
+            } else {
+                toPreProcess.setLabelsMaskArray(finalMask);
             }
-
-            toPreProcess.setLabelsMaskArray(finalMask);
         } else {
 
-            throw new UnsupportedOperationException("Not yet implemented");
-        }
+            INDArray labels = toPreProcess.getLabels();
+            if(labels.size(1) != maskingProbability.length()){
+                throw new IllegalStateException("Output type is set to Multiclass; mismatch between number of mask " +
+                        "probabilities and labels size (labels size: " + labels.size(1) + ", numProbs = " + maskingProbability.length());
+            }
 
+            INDArray maskPerClass = Nd4j.createUninitialized(labels.shape());
+            int nClasses = maskingProbability.length();
+            for( int i=0; i<nClasses; i++ ){
+                double classIMaskProb = maskingProbability.getDouble(i);
+                Nd4j.getExecutioner().exec(new BernoulliDistribution(maskPerClass.getColumn(i), classIMaskProb));
+            }
+
+            maskPerClass.muli(labels);
+
+            INDArray maskOutput = maskPerClass.sum(1);
+
+            if(toPreProcess.getLabelsMaskArray() == null){
+                //No existing mask
+                toPreProcess.setLabelsMaskArray(maskOutput);
+            } else {
+                //Apply the new mask on top of the existing mask
+                toPreProcess.getLabelsMaskArray().muli(maskOutput);
+            }
+        }
     }
 }
