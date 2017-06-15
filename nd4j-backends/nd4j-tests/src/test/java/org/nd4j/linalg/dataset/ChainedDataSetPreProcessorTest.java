@@ -12,6 +12,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.factory.Nd4jBackend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by susaneraly on 6/15/17.
@@ -39,6 +40,11 @@ public class ChainedDataSetPreProcessorTest extends BaseNd4jTest{
 
         assertEquals(dataSet.getFeatures().getColumn(0),dataSet.getFeatures().getColumn(1));
         assertEquals(Nd4j.linspace(0,1,50).reshape(50,1).addi(5), dataSet.getFeatures().getColumn(0));
+
+
+        assertTrue(chainedDataSetPreProcessor.getPreProcessorList().size() == 2);
+        assertTrue(chainedDataSetPreProcessor.getPreProcessorAt(0) instanceof NormalizerMinMaxScaler);
+        assertTrue(chainedDataSetPreProcessor.getPreProcessorAt(1) instanceof willAdd5CustomPreprocessor);
 
         /*
         NormalizerStandardize standardize = new NormalizerStandardize();
